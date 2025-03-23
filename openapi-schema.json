@@ -1,0 +1,579 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "NetSuite REST API",
+    "version": "1.0.0",
+    "description": "Generated OpenAPI schema for NetSuite REST API."
+  },
+  "paths": {
+    "/account": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/accountCollection"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/accountCollection"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get list of records.",
+        "parameters": [
+          {
+            "name": "Prefer",
+            "description": "The server behavior requested by the client. Use 'respond-async' to execute the request asynchronously. If the request is executed asynchronously, 'Preference-applied: respond-async' is returned in the response.",
+            "required": false,
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "respond-async"
+              ]
+            }
+          },
+          {
+            "name": "X-NetSuite-Idempotency-Key",
+            "description": "A user-defined unique idempotency key that is applied to every asynchronous requests to ensure that the request is executed only once. Only one request can be executed with every unique idempotency key. Use UUID in string format as defined by RFC 4122. If the request is executed synchronously, this value is ignored.",
+            "required": false,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "description": "The search query that is used to filter results.",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "description": "The limit used to specify the number of results on a single page.",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": "1000"
+            }
+          },
+          {
+            "name": "offset",
+            "description": "The offset used for selecting a specific page of results.",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": "0"
+            }
+          }
+        ],
+        "tags": [
+          "Account"
+        ]
+      },
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/nsError"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/nsError"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Insert record.",
+        "parameters": [
+          {
+            "name": "Prefer",
+            "description": "The server behavior requested by the client. Use 'respond-async' to execute the request asynchronously. If the request is executed asynchronously, 'Preference-applied: respond-async' is returned in the response.",
+            "required": false,
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "respond-async"
+              ]
+            }
+          },
+          {
+            "name": "X-NetSuite-Idempotency-Key",
+            "description": "A user-defined unique idempotency key that is applied to every asynchronous requests to ensure that the request is executed only once. Only one request can be executed with every unique idempotency key. Use UUID in string format as defined by RFC 4122. If the request is executed synchronously, this value is ignored.",
+            "required": false,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "replace",
+            "description": "The names of sublists on this record. All sublist lines will be replaced with lines specified in the request. The names are delimited by comma.",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-NetSuite-PropertyNameValidation",
+            "description": "Sets the strictness of property name validation.",
+            "required": false,
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Error",
+                "Warning",
+                "Ignore"
+              ],
+              "default": "Warning"
+            }
+          },
+          {
+            "name": "X-NetSuite-PropertyValueValidation",
+            "description": "Sets the strictness of property value validation.",
+            "required": false,
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Error",
+                "Warning",
+                "Ignore"
+              ],
+              "default": "Error"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/definitions/account"
+              }
+            }
+          }
+        },
+        "tags": [
+          "Account"
+        ]
+      }
+    },
+    "/account/{id}": {
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/nsError"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/nsError"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Remove record.",
+        "parameters": [
+          {
+            "name": "Prefer",
+            "description": "The server behavior requested by the client. Use 'respond-async' to execute the request asynchronously. If the request is executed asynchronously, 'Preference-applied: respond-async' is returned in the response.",
+            "required": false,
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "respond-async"
+              ]
+            }
+          },
+          {
+            "name": "X-NetSuite-Idempotency-Key",
+            "description": "A user-defined unique idempotency key that is applied to every asynchronous requests to ensure that the request is executed only once. Only one request can be executed with every unique idempotency key. Use UUID in string format as defined by RFC 4122. If the request is executed synchronously, this value is ignored.",
+            "required": false,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "description": "Internal identifier.",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "tags": [
+          "Account"
+        ]
+      },
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/account"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/account"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get record.",
+        "parameters": [
+          {
+            "name": "Prefer",
+            "description": "The server behavior requested by the client. Use 'respond-async' to execute the request asynchronously. If the request is executed asynchronously, 'Preference-applied: respond-async' is returned in the response.",
+            "required": false,
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "respond-async"
+              ]
+            }
+          },
+          {
+            "name": "X-NetSuite-Idempotency-Key",
+            "description": "A user-defined unique idempotency key that is applied to every asynchronous requests to ensure that the request is executed only once. Only one request can be executed with every unique idempotency key. Use UUID in string format as defined by RFC 4122. If the request is executed synchronously, this value is ignored.",
+            "required": false,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "description": "Internal identifier.",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "expandSubResources",
+            "description": "Set to 'true' to automatically expand all sublists, sublist lines, and subrecords on this record.",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": "false"
+            }
+          },
+          {
+            "name": "simpleEnumFormat",
+            "description": "Set to true to return enumeration values in a format that only shows the internal ID value.",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": "false"
+            }
+          },
+          {
+            "name": "fields",
+            "description": "The names of the fields and sublists on the record. Only the selected fields and sublists will be returned in the response.",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "Account"
+        ]
+      },
+      "patch": {
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/nsError"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/nsError"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Update record.",
+        "parameters": [
+          {
+            "name": "Prefer",
+            "description": "The server behavior requested by the client. Use 'respond-async' to execute the request asynchronously. If the request is executed asynchronously, 'Preference-applied: respond-async' is returned in the response.",
+            "required": false,
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "respond-async"
+              ]
+            }
+          },
+          {
+            "name": "X-NetSuite-Idempotency-Key",
+            "description": "A user-defined unique idempotency key that is applied to every asynchronous requests to ensure that the request is executed only once. Only one request can be executed with every unique idempotency key. Use UUID in string format as defined by RFC 4122. If the request is executed synchronously, this value is ignored.",
+            "required": false,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "description": "Internal identifier.",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "X-NetSuite-PropertyNameValidation",
+            "description": "Sets the strictness of property name validation.",
+            "required": false,
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Error",
+                "Warning",
+                "Ignore"
+              ],
+              "default": "Warning"
+            }
+          },
+          {
+            "name": "X-NetSuite-PropertyValueValidation",
+            "description": "Sets the strictness of property value validation.",
+            "required": false,
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Error",
+                "Warning",
+                "Ignore"
+              ],
+              "default": "Error"
+            }
+          },
+          {
+            "name": "replace",
+            "description": "The names of sublists on this record. All sublist lines will be replaced with lines specified in the request. The names are delimited by comma.",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "replaceSelectedFields",
+            "description": "If set to 'true', all fields that should be deleted in the update request, including body fields, must be included in the 'replace' query parameter.",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": "false"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/definitions/account"
+              }
+            }
+          }
+        },
+        "tags": [
+          "Account"
+        ]
+      },
+      "put": {
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/nsError"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/nsError"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Insert or update record.",
+        "parameters": [
+          {
+            "name": "Prefer",
+            "description": "The server behavior requested by the client. Use 'respond-async' to execute the request asynchronously. If the request is executed asynchronously, 'Preference-applied: respond-async' is returned in the response.",
+            "required": false,
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "respond-async"
+              ]
+            }
+          },
+          {
+            "name": "X-NetSuite-Idempotency-Key",
+            "description": "A user-defined unique idempotency key that is applied to every asynchronous requests to ensure that the request is executed only once. Only one request can be executed with every unique idempotency key. Use UUID in string format as defined by RFC 4122. If the request is executed synchronously, this value is ignored.",
+            "required": false,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "description": "External identifier.",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-NetSuite-PropertyNameValidation",
+            "description": "Sets the strictness of property name validation.",
+            "required": false,
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Error",
+                "Warning",
+                "Ignore"
+              ],
+              "default": "Warning"
+            }
+          },
+          {
+            "name": "X-NetSuite-PropertyValueValidation",
+            "description": "Sets the strictness of property value validation.",
+            "required": false,
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Error",
+                "Warning",
+                "Ignore"
+              ],
+              "default": "Error"
+            }
+          },
+          {
+            "name": "replace",
+            "description": "The names of sublists on this record. All sublist lines will be replaced with lines specified in the request. The names are delimited by comma.",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "replaceSelectedFields",
+            "description": "If set to 'true', all fields that should be deleted in the update request, including body fields, must be included in the 'replace' query parameter.",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": "false"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/definitions/account"
+              }
+            }
+          }
+        },
+        "tags": [
+          "Account"
+        ]
+      }
+    }
+  },
+  "components": {}
+}
