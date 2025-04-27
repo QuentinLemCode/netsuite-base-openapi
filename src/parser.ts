@@ -3,12 +3,13 @@ import { OpenAPIV3 } from 'openapi-types';
 import { ElementHandle, Page } from 'puppeteer';
 
 async function parsePaths(
-  div: ElementHandle<HTMLDivElement>
+  div: ElementHandle<HTMLDivElement>,
+  paths: OpenAPIV3.PathsObject = {}
 ): Promise<OpenAPIV3.PathsObject> {
   const tagName = await textContent(await div.$('h1[id^="tag-"]'));
+  console.log('Parsing paths for ' + tagName);
   if (!tagName) return {};
   const operations = await div.$$('div[id^="operation-"]');
-  const paths: OpenAPIV3.PathsObject = {};
   for (const operation of operations) {
     const { path, data, method } = await parseOperation(operation, tagName);
     (paths[path] ||= {})[method] = data;
@@ -195,20 +196,188 @@ async function textContent(el: ElementHandle | null) {
 
 /**
  * Parses the NetSuite REST API documentation HTML and extracts API details.
- * @param html The HTML content of the API documentation.
- * @returns An array of parsed API endpoints.
+ * @param page The Puppeteer page of the API documentation.
+ * @returns The ParsedOpenApi object.
  */
 export async function parsePageToOpenAPI(page: Page): Promise<ParsedOpenApi> {
   const endpoints = await page.$$('div#docs article div.ns-support-ga');
 
-  const endpoint = endpoints[0];
+  const paths: OpenAPIV3.PathsObject = {};
 
-  const paths = await parsePaths(endpoint);
+  for (const endpoint of endpoints) {
+    const endpointPaths = await parsePaths(endpoint);
+    Object.assign(paths, endpointPaths);
+  }
+
+  const schemaElements = await page.$$('div[id^="definition-"]');
+
+  const schemaElement = schemaElements[0];
+
+  const schemas: OpenAPIV3.ComponentsObject['schemas'] = {};
+
+  // for(const schemaElement of schemaElements) {
+  //   await parseSchemas(schemaElement, schemas);
+  // }
+
+  await parseSchemas(schemaElement, schemas);
 
   return {
-    components: {},
+    components: {
+      schemas,
+    },
     paths,
   };
+}
+
+async function parseSchemas(schemaElement: ElementHandle<HTMLDivElement>, schemas: Exclude<OpenAPIV3.ComponentsObject['schemas'], undefined>) {
+  const title = await textContent(await schemaElement.$('h2'));
+  const schema: OpenAPIV3.SchemaObject = {
+    type: 'object',
+    properties: await parseSchemaProperties(schemaElement)
+  }
+  schemas[title] = schema;
+}
+
+async function parseSchemaProperties(schemaElement: ElementHandle<HTMLDivElement>): Promise<OpenAPIV3.BaseSchemaObject['properties']> {
+  const properties = await schemaElement.$$('section.json-schema-properties dl dt');
+  const result: OpenAPIV3.BaseSchemaObject['properties'] = {};
+
+  result['id'] = {
+    type: 'object',
+    $ref: '#/components/schemas/RecordRef'
+  }
+
+  for (let i = 0; i < properties.length; i++) {
+    const property = properties[i];
+
+    /* There is multiple cases to handle here
+    - if it's a boolean, or string, or number, we will only parse the current property object
+      example :
+      "acctNumber": {
+          "title": "Number",
+          "type": "string",
+          "description": "Enter the number to identify this account. The number can be alphanumeric. The maximum number of characters is 60.",
+          "nullable": true
+      },
+    - if it's a reference to another resource, we have to parse the reference only
+      example :
+      "accountContextSearch": {
+          "$ref": "#/components/schemas/account-accountContextSearchCollection"
+      },
+    - if it's an object type, we have to parse the current property object and the next one (which will include the schema of the object)
+      example :
+      "cashFlowRate": {
+          "type": "object",
+          "properties": {
+              "id": {
+                  "title": "Internal identifier",
+                  "type": "string",
+                  "enum": [
+                      "AVERAGE",
+                      "HISTORICAL",
+                      "CURRENT"
+                  ]
+              },
+              "refName": {
+                  "title": "Reference Name",
+                  "type": "string"
+              }
+          }
+      },
+      - if it's an array type, we have to parse the current property object and the next one (which will include the schema of the array)
+      example :
+      "links": {
+          "title": "Links",
+          "type": "array",
+          "readOnly": true,
+          "items": {
+              "$ref": "#/components/schemas/nsLink"
+          }
+      },
+      - if there is a description, we have to parse the current property object and the next one (which will include the description)
+      example : 
+      "isSummary": {
+          "title": "Summary",
+          "type": "boolean",
+          "description": "Check this box to make this account record solely for reporting purposes. Summary accounts are useful when you want to create a non-posting, inactive parent account that has active child accounts. If you do not have a OneWorld account, new summary accounts cannot have an opening balance, but you can convert an existing account with a transaction balance into a summary account. In this case, you cannot post additional transactions to the account. Summary accounts appear with their children in the chart of accounts list. You cannot merge a summary account into another account."
+      },
+    */
+
+    let type: Exclude<OpenAPIV3.SchemaObject['type'], undefined>;
+    const hasInnerSchema = i < properties.length - 1 && await properties[i+1].evaluate((el) => el.className === 'json-inner-schema');
+    if (hasInnerSchema) {
+      const innerSchema = properties[i+1];
+      i++;
+
+      const sectionClassName = await innerSchema.evaluate(el => el.className);
+
+      if (sectionClassName.includes('json-schema-array-items')) {
+        type = 'array';
+      } else if (sectionClassName.includes('json-schema-properties')) {
+        type = 'object';
+      } else {
+        type = 'string'
+      }
+    } else {
+      type = await textContent(await property.$('.json-property-type')) as OpenAPIV3.NonArraySchemaObjectType;
+    }
+
+    const name = await textContent(await property.$('.json-property-name'));
+
+    const description = await textContent(await property.$('.prop-value p'));
+    const required = !!(await property.$('.json-property-required'));
+    const schema: OpenAPIV3.SchemaObject = {
+      type: 'string',
+      description,
+
+
+
+
+    }
+    result[name] = {
+      description,
+      schema
+    }
+  }
+
+  return result;
+
+}
+
+async function parseArraySchema(property: ElementHandle<HTMLElement>, innerSchema: ElementHandle<HTMLElement>) {
+  const name = await textContent(await property.$('.json-property-name'));
+  const title = await textContent(await property.$('.json-property-title'));
+  const type = 'array';
+  const readOnly = !!(await property.$('.json-property-read-only'));
+  const schema: OpenAPIV3.ArraySchemaObject = {
+    type,
+    title,
+    readOnly,
+    items: (await parseNonArraySchema(innerSchema)).schema
+  }
+  return {
+    name,
+    schema
+  }
+}
+
+async function parseNonArraySchema(property: ElementHandle<HTMLElement>): Promise<{name: string, schema: OpenAPIV3.NonArraySchemaObject}> {
+  const name = await textContent(await property.$('.json-property-name'));
+  const title = await textContent(await property.$('.json-property-title'));
+  const type = await textContent(await property.$('.json-property-type')) as OpenAPIV3.NonArraySchemaObjectType;
+  const readOnly = !!(await property.$('.json-property-read-only'));
+  const formatElement = await property.$('.json-property-format');
+  const format = (formatElement && (await textContent(formatElement)).replaceAll('(', '').replaceAll(')', '').trim()) || undefined;
+  const schema: OpenAPIV3.NonArraySchemaObject = {
+    type,
+    title,
+    readOnly,
+    format
+  }
+  return {
+    name,
+    schema
+  }
 }
 
 /**
